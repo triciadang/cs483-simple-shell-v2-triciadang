@@ -88,15 +88,15 @@ int main(void) {
     listRemoveN(listHeadPtr,2);
     listPrint(listHeadPtr);
     /* expected output:
-    1: zero
-    2: one
-    3: three
+    zero
+    two
+    three
     */
 
     printf("\nlistPrintN test:\n");
     listPrintN(listHeadPtr,2);
     /* expected output:
-    3: three
+    two
     */
 
     listDestroy(listHeadPtr);
