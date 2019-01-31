@@ -23,7 +23,7 @@ set(SDIR )
 set(SOURCE_FILES
         ${SDIR}listTest.c   #comment this line out to build pex1.c
         ${SDIR}historyList.c
-#        ${SDIR}pex1.c      #uncomment this line to build pex1.c
+        ${SDIR}pex1.c      #uncomment this line to build pex1.c
         )
 
 # Tell cmake the name of your executable and what source files to
