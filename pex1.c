@@ -77,13 +77,17 @@ int main() {
                 printf("%d ", i);
                 listPrintN(historyList, i);
                 printf("\n");
-
             }
 
 
         }
 
         else if (strcmp(cmd_ptr_array[0], "recall")==0) {
+            int cmdIndex = atoi(cmd_ptr_array[1]);
+            printf("%d ", cmdIndex);
+            listPrintN(historyList, cmdIndex);
+            printf("\n");
+
         }
         else if (strcmp(cmd_ptr_array[0], "cd")==0) {
             if (strcmp(cmd_ptr_array[1], "~") == 0){
@@ -93,9 +97,6 @@ int main() {
             else{
                 chdir(cmd_ptr_array[1]);
             }
-
-//            printf("%s", cmd_ptr_array[1]);
-
         }
 
 
