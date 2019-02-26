@@ -21,10 +21,10 @@ set(SDIR )
 
 # List all files that are required to compile your project
 set(SOURCE_FILES
-        ${SDIR}listTest.c   #comment this line out to build pex1.c
+#        ${SDIR}listTest.c   #comment this line out to build pex1.c
         ${SDIR}historyList.c
         ${SDIR}pex1.c      #uncomment this line to build pex1.c
-        )
+        pex1.h)
 
 # Tell cmake the name of your executable and what source files to
 # build from

@@ -13,6 +13,7 @@ HistoryNodeType* listInsertTail(HistoryNodeType* headNode, char* data){
     new_node->data = data;
     HistoryNodeType* prev_ptr = NULL;
 
+    //if empty list
     if (headNode == NULL){
         headNode = new_node;
     }
@@ -41,7 +42,7 @@ HistoryNodeType* listInsertHead(HistoryNodeType* headNode, char* data){
     new_node->data = data;
 
     //if empty list
-    if (headNode == NULL){
+    if (headNode->data == NULL){
         headNode = new_node;
         return headNode;
     }

@@ -39,6 +39,8 @@ int main() {
     fgets(input_buf, 49, stdin);
     input_buf[strlen(input_buf)-1] = '\0';
 
+    char* cmdToInput = strdup(input_buf);
+
     char* tmp_ptr;
 
     tmp_ptr = strtok(input_buf, " \t");
@@ -46,7 +48,7 @@ int main() {
 
     while (tmp_ptr != NULL) {
         cmd_ptr_array[i] = strdup(tmp_ptr);
-//        printf("token[%d]  \"%s\"\n", i, cmd_ptr_array[i]);
+//        printf("token[%d]  \"%s\"\n", i, cmbd_ptr_array[i]);
         tmp_ptr = strtok(NULL, " \t");
         i++;
 
@@ -54,13 +56,29 @@ int main() {
 
     cmd_ptr_array[i] = NULL;
 
+
     while (strcmp(cmd_ptr_array[0], "exit")!=0){
 
+        //if it is your first command
+        if (numberOfCommands == 0){
+            historyList = listInsertHead(historyList, cmdToInput);
+            numberOfCommands++;
+        }
+        else{
+            if (strcmp(cmdToInput, listGet(historyList, numberOfCommands)) != 0){
+                historyList = listInsertTail(historyList, cmdToInput);
+                numberOfCommands++;
+            }
+        }
+
         if (strcmp(cmd_ptr_array[0], "history")==0) {
-//            for (int i = atoi(cmd_ptr_array[1]); i < 1; i-- ){
-//                printf("%d %s", i, listGet(historyList, i));
-//
-//            }
+            int numOfCmds = atoi(cmd_ptr_array[1]);
+            for (int i = numOfCmds; i > 0; i-- ){
+                printf("%d ", i);
+                listPrintN(historyList, i);
+                printf("\n");
+
+            }
 
 
         }
@@ -97,23 +115,14 @@ int main() {
 
         }
 
-        //if it is your first command
-        if (numberOfCommands == 0){
-            listInsertHead(historyList, cmd_ptr_array);
-            numberOfCommands++;
-        }
-        else{
-            if (strcmp(cmd_ptr_array, listGet(historyList, numberOfCommands)) != 0){
-                listInsertTail(historyList, cmd_ptr_array);
-                numberOfCommands++;
-            }
-        }
 
 
         printf(getcwd(cwd, size));
         printf("> ");
         fgets(input_buf, 49, stdin);
         input_buf[strlen(input_buf)-1] = '\0';
+
+        cmdToInput = strdup(input_buf);
 
         char* tmp_ptr;
 
@@ -122,7 +131,6 @@ int main() {
 
         while (tmp_ptr != NULL) {
             cmd_ptr_array[i] = strdup(tmp_ptr);
-//            printf("token[%d]  \"%s\"\n", i, cmd_ptr_array[i]);
             tmp_ptr = strtok(NULL, " \t");
             i++;
 
@@ -138,3 +146,4 @@ int main() {
     return 0;
 
 }
+
