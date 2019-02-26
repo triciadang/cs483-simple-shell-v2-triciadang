@@ -78,8 +78,6 @@ int main() {
                 listPrintN(historyList, i);
                 printf("\n");
             }
-
-
         }
 
         else if (strcmp(cmd_ptr_array[0], "recall")==0) {
@@ -87,8 +85,9 @@ int main() {
             printf("%d ", cmdIndex);
             listPrintN(historyList, cmdIndex);
             printf("\n");
-
         }
+
+
         else if (strcmp(cmd_ptr_array[0], "cd")==0) {
             if (strcmp(cmd_ptr_array[1], "~") == 0){
                 chdir(getenv("HOME"));
@@ -99,6 +98,9 @@ int main() {
             }
         }
 
+        else if (strcmp(cmd_ptr_array[0], "")==0) {
+            break;
+        }
 
             //external command
         else{
@@ -110,7 +112,8 @@ int main() {
                 wait(&status);
             }
             else{
-                execvp(cmd_ptr_array[0], cmd_ptr_array);
+                status = execvp(cmd_ptr_array[0], cmd_ptr_array);
+
 
             }
 
