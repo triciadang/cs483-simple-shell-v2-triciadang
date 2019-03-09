@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <sys/wait.h>
+#include <stdbool.h>
 #include "historyList.h"
 
 /*=============================================================================
@@ -35,6 +36,7 @@ int main() {
     int numberOfCommands = 0;
     HistoryNodeType* historyList = malloc(sizeof(HistoryNodeType));
     size_t size;
+    bool recall = false;
 
 
     //Print Air Force Shell and Current Working Directory
@@ -66,22 +68,37 @@ int main() {
     //checks if user wants to exit
     while (strcmp(cmdToInput, "exit")!=0){
 
-        //if it is your first command
-        if (numberOfCommands == 0){
-            //adds command as head of the list
-            historyList = listInsertHead(historyList, cmdToInput);
-            //keeps count of number of commands
-            numberOfCommands++;
-        }
-        else{
+        if (recall == false) {
 
-            //if the cmd is not equal to the previous one
-            if (strcmp(cmdToInput, listGet(historyList, numberOfCommands)) != 0){
+            //if it is your first command
+            if (numberOfCommands == 0) {
+                //adds command as head of the list
+                historyList = listInsertHead(historyList, cmdToInput);
+                //keeps count of number of commands
+                numberOfCommands++;
+            } else {
+
+                //if the cmd is not equal to the previous one
+                if (strcmp(cmdToInput, listGet(historyList, numberOfCommands)) != 0) {
+
+                    //insert command to the end of the list
+                    historyList = listInsertTail(historyList, cmdToInput);
+                    numberOfCommands++;
+                }
+            }
+        }
+
+        else{
+            listRemoveN(historyList, numberOfCommands);
+            numberOfCommands--;
+
+            if (strcmp(cmdToInput, listGet(historyList, numberOfCommands)) != 0) {
 
                 //insert command to the end of the list
                 historyList = listInsertTail(historyList, cmdToInput);
                 numberOfCommands++;
             }
+            recall = false;
         }
 
 
@@ -97,20 +114,21 @@ int main() {
                         numOfCmds = numberOfCommands;
                     }
                 }
-                for (int i = 0; i < numOfCmds; i++) {
-                    printf("%d ", numberOfCommands - i);
-                    listPrintN(historyList, numberOfCommands - i);
+                for (int i = numOfCmds; i > 0; i--) {
+                    printf("%d ", i);
+                    listPrintN(historyList, numberOfCommands - i + 1);
                     printf("\n");
                 }
             }
             else if (strcmp(cmd_ptr_array[0], "recall") == 0 && cmd_ptr_array[1] != NULL) {
+
+                recall = true;
 
                 cmdIndex = atoi(cmd_ptr_array[1]);
 
                 if (cmdIndex > numberOfCommands) {
                     printf("%s\n", "Can't Recall: You didn't enter that many commands yet.");
                 } else {
-                    printf("%d ", cmdIndex);
                     listPrintN(historyList, cmdIndex);
                     printf("\n");
                 }
@@ -147,30 +165,49 @@ int main() {
 
         status = 0;
 
+        if (recall == false) {
+            printf(getcwd(cwd, size));
+            printf("> ");
+            fgets(input_buf, 49, stdin);
+            input_buf[strlen(input_buf)-1] = '\0';
+            cmdToInput = strdup(input_buf);
 
+            tmp_ptr = strtok(input_buf, " \t");
+            int i = 0;
 
-        printf(getcwd(cwd, size));
-        printf("> ");
-        fgets(input_buf, 49, stdin);
-        input_buf[strlen(input_buf)-1] = '\0';
+            while (tmp_ptr != NULL) {
+                cmd_ptr_array[i] = strdup(tmp_ptr);
+                tmp_ptr = strtok(NULL, " \t");
+                i++;
 
-        cmdToInput = strdup(input_buf);
+            }
 
-        char* tmp_ptr;
-
-        tmp_ptr = strtok(input_buf, " \t");
-        int i = 0;
-
-        while (tmp_ptr != NULL) {
-            cmd_ptr_array[i] = strdup(tmp_ptr);
-            tmp_ptr = strtok(NULL, " \t");
-            i++;
+            cmd_ptr_array[i] = NULL;
 
         }
 
-        cmd_ptr_array[i] = NULL;
+        else{
+
+            cmdToInput = strdup(listGet(historyList, cmdIndex));
+
+            tmp_ptr = strtok(cmdToInput, " \t");
+            int i = 0;
+
+            while (tmp_ptr != NULL) {
+                cmd_ptr_array[i] = strdup(tmp_ptr);
+                tmp_ptr = strtok(NULL, " \t");
+                i++;
+
+            }
+
+            cmd_ptr_array[i] = NULL;
+
+        }
+
 
     }
+
+    printf("%s\n", "Terminating afsh...");
 
     free(historyList);
 
