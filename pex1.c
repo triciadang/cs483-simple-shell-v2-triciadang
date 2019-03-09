@@ -32,20 +32,22 @@ int main() {
     int status = 0;
     int numOfCmds = 0;
     int cmdIndex = 0;
-
     int numberOfCommands = 0;
     HistoryNodeType* historyList = malloc(sizeof(HistoryNodeType));
-
     size_t size;
 
-    printf("%s\n", "...Air Force Shell (afsh)...");
+
+    //Print Air Force Shell and Current Working Directory
+    printf("%s\n\n", "...Air Force Shell (afsh)...");
     printf("%s",getcwd(cwd, size));
     printf("> ");
     fgets(input_buf, 49, stdin);
     input_buf[strlen(input_buf)-1] = '\0';
 
+    //copy the input into cmdToiInput
     char* cmdToInput = strdup(input_buf);
 
+    //turns input to tokens
     char* tmp_ptr;
 
     tmp_ptr = strtok(input_buf, " \t");
@@ -61,44 +63,49 @@ int main() {
     cmd_ptr_array[i] = NULL;
 
 
+    //checks if user wants to exit
     while (strcmp(cmdToInput, "exit")!=0){
 
         //if it is your first command
         if (numberOfCommands == 0){
+            //adds command as head of the list
             historyList = listInsertHead(historyList, cmdToInput);
+            //keeps count of number of commands
             numberOfCommands++;
         }
         else{
 
-
+            //if the cmd is not equal to the previous one
             if (strcmp(cmdToInput, listGet(historyList, numberOfCommands)) != 0){
+
+                //insert command to the end of the list
                 historyList = listInsertTail(historyList, cmdToInput);
                 numberOfCommands++;
             }
         }
 
+
         if (cmd_ptr_array[0] != NULL) {
             if (strcmp(cmd_ptr_array[0], "history") == 0) {
-
-                if (cmd_ptr_array[1] == NULL || cmd_ptr_array > numberOfCommands) {
-                    numOfCmds = numberOfCommands;
-                } else {
-                    numOfCmds = atoi(cmd_ptr_array[1]);
-
-                }
-                for (int i = numOfCmds; i > 0; i--) {
-                    printf("%d ", i);
-                    listPrintN(historyList, i);
-                    printf("\n");
-                }
-            } else if (strcmp(cmd_ptr_array[0], "recall") == 0) {
-
 
                 if (cmd_ptr_array[1] == NULL) {
                     numOfCmds = numberOfCommands;
                 } else {
-                    cmdIndex = atoi(cmd_ptr_array[1]);
+                    numOfCmds = atoi(cmd_ptr_array[1]);
+
+                    if (numOfCmds > numberOfCommands){
+                        numOfCmds = numberOfCommands;
+                    }
                 }
+                for (int i = 0; i < numOfCmds; i++) {
+                    printf("%d ", numberOfCommands - i);
+                    listPrintN(historyList, numberOfCommands - i);
+                    printf("\n");
+                }
+            }
+            else if (strcmp(cmd_ptr_array[0], "recall") == 0 && cmd_ptr_array[1] != NULL) {
+
+                cmdIndex = atoi(cmd_ptr_array[1]);
 
                 if (cmdIndex > numberOfCommands) {
                     printf("%s\n", "Can't Recall: You didn't enter that many commands yet.");
@@ -107,7 +114,9 @@ int main() {
                     listPrintN(historyList, cmdIndex);
                     printf("\n");
                 }
-            } else if (strcmp(cmd_ptr_array[0], "cd") == 0 && cmd_ptr_array[1] != NULL) {
+
+            }
+            else if (strcmp(cmd_ptr_array[0], "cd") == 0 && cmd_ptr_array[1] != NULL) {
                 if (strcmp(cmd_ptr_array[1], "~") == 0) {
                     status = chdir(getenv("HOME"));
                 } else {
@@ -116,7 +125,7 @@ int main() {
             }
 
 
-                //external command
+            //external command
             else {
                 pid_t ret_val;
 
