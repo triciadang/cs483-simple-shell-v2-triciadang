@@ -28,6 +28,9 @@ int main() {
     char cwd[50];
     char input_buf[50];
     char* cmd_ptr_array[20];
+    int status = 0;
+    int numOfCmds = 0;
+    int cmdIndex = 0;
 
     int numberOfCommands = 0;
     HistoryNodeType* historyList = malloc(sizeof(HistoryNodeType));
@@ -48,7 +51,6 @@ int main() {
 
     while (tmp_ptr != NULL) {
         cmd_ptr_array[i] = strdup(tmp_ptr);
-//        printf("token[%d]  \"%s\"\n", i, cmbd_ptr_array[i]);
         tmp_ptr = strtok(NULL, " \t");
         i++;
 
@@ -72,8 +74,15 @@ int main() {
         }
 
         if (strcmp(cmd_ptr_array[0], "history")==0) {
-            int numOfCmds = atoi(cmd_ptr_array[1]);
-            for (int i = numOfCmds; i > 0; i-- ){
+
+            if (cmd_ptr_array[1] == NULL || cmd_ptr_array > numberOfCommands){
+                numOfCmds = numberOfCommands;
+            }
+            else {
+                numOfCmds = atoi(cmd_ptr_array[1]);
+
+            }
+            for (int i = numOfCmds; i > 0; i--) {
                 printf("%d ", i);
                 listPrintN(historyList, i);
                 printf("\n");
@@ -81,25 +90,40 @@ int main() {
         }
 
         else if (strcmp(cmd_ptr_array[0], "recall")==0) {
-            int cmdIndex = atoi(cmd_ptr_array[1]);
-            printf("%d ", cmdIndex);
-            listPrintN(historyList, cmdIndex);
-            printf("\n");
+
+
+            if (cmd_ptr_array[1] == NULL ){
+                numOfCmds = numberOfCommands;
+            }
+            else {
+                cmdIndex = atoi(cmd_ptr_array[1]);
+            }
+
+            if (cmdIndex > numberOfCommands){
+                printf("%s\n", "Can't Recall: You didn't enter that many commands yet.");
+            }
+            else {
+                for (int i = numOfCmds; i > 0; i--) {
+                    printf("%d ", i);
+                    listPrintN(historyList, i);
+                    printf("\n");
+                }
+
+
+                printf("%d ", cmdIndex);
+                listPrintN(historyList, cmdIndex);
+                printf("\n");
+            }
         }
 
 
-        else if (strcmp(cmd_ptr_array[0], "cd")==0) {
+        else if (strcmp(cmd_ptr_array[0], "cd")==0 && cmd_ptr_array[1] != NULL) {
             if (strcmp(cmd_ptr_array[1], "~") == 0){
-                chdir(getenv("HOME"));
+                status = chdir(getenv("HOME"));
             }
-
             else{
-                chdir(cmd_ptr_array[1]);
+                status = chdir(cmd_ptr_array[1]);
             }
-        }
-
-        else if (strcmp(cmd_ptr_array[0], "")==0) {
-            break;
         }
 
 
@@ -107,7 +131,6 @@ int main() {
             //external command
         else{
             pid_t ret_val;
-            int status;
 
             ret_val = fork();
             if (ret_val != 0){
@@ -120,6 +143,12 @@ int main() {
             }
 
         }
+
+        if (status == -1){
+            printf("%s", "Command Not Valid\n");
+        }
+
+        status = 0;
 
 
 
