@@ -25,6 +25,7 @@
 
 int main() {
 
+    //initialize variables
     char cwd[50];
     char input_buf[50];
     char* cmd_ptr_array[20];
@@ -37,6 +38,7 @@ int main() {
 
     size_t size;
 
+    printf("%s\n", "...Air Force Shell (afsh)...");
     printf("%s",getcwd(cwd, size));
     printf("> ");
     fgets(input_buf, 49, stdin);
@@ -59,7 +61,7 @@ int main() {
     cmd_ptr_array[i] = NULL;
 
 
-    while (strcmp(cmd_ptr_array[0], "exit")!=0){
+    while (strcmp(cmdToInput, "exit")!=0){
 
         //if it is your first command
         if (numberOfCommands == 0){
@@ -67,81 +69,67 @@ int main() {
             numberOfCommands++;
         }
         else{
+
+
             if (strcmp(cmdToInput, listGet(historyList, numberOfCommands)) != 0){
                 historyList = listInsertTail(historyList, cmdToInput);
                 numberOfCommands++;
             }
         }
 
-        if (strcmp(cmd_ptr_array[0], "history")==0) {
+        if (cmd_ptr_array[0] != NULL) {
+            if (strcmp(cmd_ptr_array[0], "history") == 0) {
 
-            if (cmd_ptr_array[1] == NULL || cmd_ptr_array > numberOfCommands){
-                numOfCmds = numberOfCommands;
-            }
-            else {
-                numOfCmds = atoi(cmd_ptr_array[1]);
+                if (cmd_ptr_array[1] == NULL || cmd_ptr_array > numberOfCommands) {
+                    numOfCmds = numberOfCommands;
+                } else {
+                    numOfCmds = atoi(cmd_ptr_array[1]);
 
-            }
-            for (int i = numOfCmds; i > 0; i--) {
-                printf("%d ", i);
-                listPrintN(historyList, i);
-                printf("\n");
-            }
-        }
-
-        else if (strcmp(cmd_ptr_array[0], "recall")==0) {
-
-
-            if (cmd_ptr_array[1] == NULL ){
-                numOfCmds = numberOfCommands;
-            }
-            else {
-                cmdIndex = atoi(cmd_ptr_array[1]);
-            }
-
-            if (cmdIndex > numberOfCommands){
-                printf("%s\n", "Can't Recall: You didn't enter that many commands yet.");
-            }
-            else {
+                }
                 for (int i = numOfCmds; i > 0; i--) {
                     printf("%d ", i);
                     listPrintN(historyList, i);
                     printf("\n");
                 }
+            } else if (strcmp(cmd_ptr_array[0], "recall") == 0) {
 
 
-                printf("%d ", cmdIndex);
-                listPrintN(historyList, cmdIndex);
-                printf("\n");
-            }
-        }
+                if (cmd_ptr_array[1] == NULL) {
+                    numOfCmds = numberOfCommands;
+                } else {
+                    cmdIndex = atoi(cmd_ptr_array[1]);
+                }
 
-
-        else if (strcmp(cmd_ptr_array[0], "cd")==0 && cmd_ptr_array[1] != NULL) {
-            if (strcmp(cmd_ptr_array[1], "~") == 0){
-                status = chdir(getenv("HOME"));
-            }
-            else{
-                status = chdir(cmd_ptr_array[1]);
-            }
-        }
-
-
-
-            //external command
-        else{
-            pid_t ret_val;
-
-            ret_val = fork();
-            if (ret_val != 0){
-                wait(&status);
-            }
-            else{
-                status = execvp(cmd_ptr_array[0], cmd_ptr_array);
-
-
+                if (cmdIndex > numberOfCommands) {
+                    printf("%s\n", "Can't Recall: You didn't enter that many commands yet.");
+                } else {
+                    printf("%d ", cmdIndex);
+                    listPrintN(historyList, cmdIndex);
+                    printf("\n");
+                }
+            } else if (strcmp(cmd_ptr_array[0], "cd") == 0 && cmd_ptr_array[1] != NULL) {
+                if (strcmp(cmd_ptr_array[1], "~") == 0) {
+                    status = chdir(getenv("HOME"));
+                } else {
+                    status = chdir(cmd_ptr_array[1]);
+                }
             }
 
+
+                //external command
+            else {
+                pid_t ret_val;
+
+                ret_val = fork();
+                if (ret_val != 0) {
+                    wait(&status);
+                } else {
+                    status = execvp(cmd_ptr_array[0], cmd_ptr_array);
+
+
+                }
+
+            }
         }
 
         if (status == -1){
