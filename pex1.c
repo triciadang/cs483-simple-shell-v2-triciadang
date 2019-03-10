@@ -5,7 +5,6 @@
 #include <sys/wait.h>
 #include <stdbool.h>
 #include "historyList.h"
-#include <ctype.h>
 
 /*=============================================================================
  |   Assignment:  PEX1
@@ -13,8 +12,9 @@
  |      Section:  M3
  |        Class:  CS483
  +-----------------------------------------------------------------------------
- |   Description:  DESCRIBE THE PROBLEM THAT THIS PROGRAM WAS WRITTEN TO
- |      SOLVE.
+ |   Description:  Create a command prompt with functionalities of cd,
+ |                  recall, history, exit, and all other functions
+ |                  are executed through a fork and exec.
  |
  |   Required Features Not Included:  DESCRIBE HERE ANY REQUIREMENTS OF
  |      THE ASSIGNMENT THAT THE PROGRAM DOES NOT ATTEMPT TO SOLVE.
@@ -22,7 +22,8 @@
  |   Known Bugs:  IF THE PROGRAM DOES NOT FUNCTION CORRECTLY IN SOME
  |      SITUATIONS, DESCRIBE THE SITUATIONS AND PROBLEMS HERE.
  +-----------------------------------------------------------------------------
- |   Documentation Statement:  PLACE YOUR DOCUMENTATION STATEMENT HERE
+ |   Documentation Statement:  https://www.tutorialspoint.com/c_standard_library/c_function_strtol.htm
+ |   was used to figure out to use strtol function.
  *===========================================================================*/
 
 int main() {
@@ -49,6 +50,11 @@ int main() {
 
     //keeps track of number of commands inputted excluding same commands
     int numberOfCommands = 0;
+
+    //for the strtol capability
+    char* ptr;
+
+    int indexOfPath = 0;
 
     //linked list of all commands
     HistoryNodeType* historyList = malloc(sizeof(HistoryNodeType));
@@ -79,6 +85,8 @@ int main() {
 
     while (tmp_ptr != NULL) {
         cmd_ptr_array[i] = strdup(tmp_ptr);
+
+        printf("token - %s\n", tmp_ptr);
         tmp_ptr = strtok(NULL, " \t");
         i++;
 
@@ -129,11 +137,12 @@ int main() {
 
                 else {
                     //history n - converts n to an integer
-                    numOfCmds = atoi(cmd_ptr_array[1]);
+                    numOfCmds = strtol(cmd_ptr_array[1], ptr, 10);
                 }
 
                 //checks if n is actually an integer
-                if (numOfCmds == (int) cmd_ptr_array[1] || numOfCmds == numberOfCommands) {
+                if (numOfCmds != 0){
+
                     //if a user inputs an n that is greater than the number of commands, just sets the command
                     //that the user wants to the number of commands you have
                     if (numOfCmds > numberOfCommands) {
@@ -154,6 +163,8 @@ int main() {
 
             //implements the recall command
             else if (strcmp(cmd_ptr_array[0], "recall") == 0) {
+                char* ptr;
+                long ret;
 
                 //if recall n where n is not blank
                 if (cmd_ptr_array[1] != NULL) {
@@ -161,13 +172,11 @@ int main() {
 
 
                     //converts the number you want to an integer
-                    cmdIndex = strtol(cmd_ptr_array, );
+                    cmdIndex = strtol(cmd_ptr_array[1], ptr, 10);
 
 
                     //checks if n is actually an integer
-                    if (isdigit(cmd_ptr_array[1])){
-
-
+                    if (cmdIndex != 0){
 
                         //if you try to recall a bigger number than you have commands
                         if (cmdIndex > numberOfCommands) {
@@ -189,9 +198,32 @@ int main() {
             }
             else if (strcmp(cmd_ptr_array[0], "cd") == 0) {
                 if (cmd_ptr_array[1] != NULL) {
-                    if (strcmp(cmd_ptr_array[1], "~") == 0) {
+
+                    if (strncmp(&cmd_ptr_array[1][0], "~", 1) == 0){
+
+                        //changes directory to the HOME
                         status = chdir(getenv("HOME"));
-                    } else {
+
+                        char delim[] = "/";
+
+//
+//                    while(restOfPath != NULL){
+//                        printf("'%s'\n", ptr);
+//                        ptr = strtok(NULL, delim);
+//                    }
+//
+//                    indexOfPath = 0;
+//                    while (tempStr[indexOfPath] != NULL)
+//                    {
+//                        printf("%d ", tempStr[i]);
+//                    }
+//
+//
+//                    status = chdir(tempStr);
+                    }
+
+                    else
+                        {
                         status = chdir(cmd_ptr_array[1]);
                     }
                     performDefaultExec = false;
