@@ -5,6 +5,7 @@
 #include <sys/wait.h>
 #include <stdbool.h>
 #include "historyList.h"
+#include <ctype.h>
 
 /*=============================================================================
  |   Assignment:  PEX1
@@ -158,13 +159,15 @@ int main() {
                 if (cmd_ptr_array[1] != NULL) {
                     recall = true;
 
-                    //converts the number you want to an integer
-                    cmdIndex = atoi(cmd_ptr_array[1]);
 
-                    printf("%d", (int)cmd_ptr_array[1]);
+                    //converts the number you want to an integer
+                    cmdIndex = strtol(cmd_ptr_array, );
+
 
                     //checks if n is actually an integer
-                    if (cmdIndex == (int) cmd_ptr_array[1]){
+                    if (isdigit(cmd_ptr_array[1])){
+
+
 
                         //if you try to recall a bigger number than you have commands
                         if (cmdIndex > numberOfCommands) {
