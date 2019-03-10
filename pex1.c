@@ -27,16 +27,37 @@
 int main() {
 
     //initialize variables
+
+    //current working directory
     char cwd[50];
+
+    //your input buf
     char input_buf[50];
+
+    //the array of your command
     char* cmd_ptr_array[20];
+
+    //says if the exec was valid
     int status = 0;
+
+    //number of commands requested by the user in history or recall
     int numOfCmds = 0;
+
+    //the index of the command that people want
     int cmdIndex = 0;
+
+    //keeps track of number of commands inputted excluding same commands
     int numberOfCommands = 0;
+
+    //linked list of all commands
     HistoryNodeType* historyList = malloc(sizeof(HistoryNodeType));
     size_t size;
+
+    //keeps track if recalled was called in the prev command
     bool recall = false;
+
+    //says if you should perform the default exec
+    bool performDefaultExec = true;
 
 
     //Print Air Force Shell and Current Working Directory
@@ -68,83 +89,115 @@ int main() {
     //checks if user wants to exit
     while (strcmp(cmdToInput, "exit")!=0){
 
-        if (recall == false) {
-
-            //if it is your first command
-            if (numberOfCommands == 0) {
-                //adds command as head of the list
-                historyList = listInsertHead(historyList, cmdToInput);
-                //keeps count of number of commands
-                numberOfCommands++;
-            } else {
-
-                //if the cmd is not equal to the previous one
-                if (strcmp(cmdToInput, listGet(historyList, numberOfCommands)) != 0) {
-
-                    //insert command to the end of the list
-                    historyList = listInsertTail(historyList, cmdToInput);
-                    numberOfCommands++;
-                }
-            }
-        }
-
-        else{
+        //if recall was called in the last command, remove it from the history list and decrease number of commands
+        if (recall == true) {
+            //remove the recall command from the list
             listRemoveN(historyList, numberOfCommands);
             numberOfCommands--;
+            recall = false;
+        }
 
+
+        //if it is your first command
+        if (numberOfCommands == 0) {
+            //adds command as head of the list
+            historyList = listInsertHead(historyList, cmdToInput);
+            //keeps count of number of commands
+            numberOfCommands++;
+        } else {
+
+            //if the cmd is not equal to the previous one
             if (strcmp(cmdToInput, listGet(historyList, numberOfCommands)) != 0) {
 
                 //insert command to the end of the list
                 historyList = listInsertTail(historyList, cmdToInput);
                 numberOfCommands++;
             }
-            recall = false;
         }
 
-
+        //if the first part of the command is not null
         if (cmd_ptr_array[0] != NULL) {
+
+            //implements the history command
             if (strcmp(cmd_ptr_array[0], "history") == 0) {
 
+                //takes care of the case history n where n is equal to 0
                 if (cmd_ptr_array[1] == NULL) {
                     numOfCmds = numberOfCommands;
-                } else {
-                    numOfCmds = atoi(cmd_ptr_array[1]);
+                }
 
-                    if (numOfCmds > numberOfCommands){
+                else {
+                    //history n - converts n to an integer
+                    numOfCmds = atoi(cmd_ptr_array[1]);
+                }
+
+                //checks if n is actually an integer
+                if (numOfCmds == (int) cmd_ptr_array[1] || numOfCmds == numberOfCommands) {
+                    //if a user inputs an n that is greater than the number of commands, just sets the command
+                    //that the user wants to the number of commands you have
+                    if (numOfCmds > numberOfCommands) {
                         numOfCmds = numberOfCommands;
                     }
-                }
-                for (int i = numOfCmds; i > 0; i--) {
-                    printf("%d ", i);
-                    listPrintN(historyList, numberOfCommands - i + 1);
-                    printf("\n");
+
+                    //actually lists the commands
+                    for (int i = numOfCmds; i > 0; i--) {
+                        printf("%d ", i);
+                        listPrintN(historyList, numberOfCommands - i + 1);
+                        printf("\n");
+                    }
+
+                    //says to not perform the fork and execution
+                    performDefaultExec = false;
                 }
             }
-            else if (strcmp(cmd_ptr_array[0], "recall") == 0 && cmd_ptr_array[1] != NULL) {
 
-                recall = true;
+            //implements the recall command
+            else if (strcmp(cmd_ptr_array[0], "recall") == 0) {
 
-                cmdIndex = atoi(cmd_ptr_array[1]);
+                //if recall n where n is not blank
+                if (cmd_ptr_array[1] != NULL) {
+                    recall = true;
 
-                if (cmdIndex > numberOfCommands) {
-                    printf("%s\n", "Can't Recall: You didn't enter that many commands yet.");
-                } else {
-                    listPrintN(historyList, cmdIndex);
-                    printf("\n");
+                    //converts the number you want to an integer
+                    cmdIndex = atoi(cmd_ptr_array[1]);
+
+                    printf("%d", (int)cmd_ptr_array[1]);
+
+                    //checks if n is actually an integer
+                    if (cmdIndex == (int) cmd_ptr_array[1]){
+
+                        //if you try to recall a bigger number than you have commands
+                        if (cmdIndex > numberOfCommands) {
+                            printf("%s\n", "Can't Recall: You didn't enter that many commands yet.");
+                        }
+
+                        //prints out the list index
+                        else {
+                            listPrintN(historyList, cmdIndex);
+                            printf("\n");
+                        }
+
+                        //says not to perform the fork and exec
+                        performDefaultExec = false;
+                    }
                 }
 
+
             }
-            else if (strcmp(cmd_ptr_array[0], "cd") == 0 && cmd_ptr_array[1] != NULL) {
-                if (strcmp(cmd_ptr_array[1], "~") == 0) {
-                    status = chdir(getenv("HOME"));
-                } else {
-                    status = chdir(cmd_ptr_array[1]);
+            else if (strcmp(cmd_ptr_array[0], "cd") == 0) {
+                if (cmd_ptr_array[1] != NULL) {
+                    if (strcmp(cmd_ptr_array[1], "~") == 0) {
+                        status = chdir(getenv("HOME"));
+                    } else {
+                        status = chdir(cmd_ptr_array[1]);
+                    }
+                    performDefaultExec = false;
                 }
             }
 
 
             //external command
-            else {
+            if (performDefaultExec) {
                 pid_t ret_val;
 
                 ret_val = fork();
@@ -155,7 +208,6 @@ int main() {
 
 
                 }
-
             }
         }
 
@@ -164,8 +216,9 @@ int main() {
         }
 
         status = 0;
+        performDefaultExec = true;
 
-        if (recall == false) {
+        if (recall == false || status == -1) {
             printf(getcwd(cwd, size));
             printf("> ");
             fgets(input_buf, 49, stdin);
