@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <stdbool.h>
+#include <values.h>
 #include "historyList.h"
 
 /*=============================================================================
@@ -31,7 +32,8 @@ int main() {
     //initialize variables
 
     //current working directory
-    char cwd[50];
+    char cwd[PATH_MAX];
+    char* currentWD;
 
     //your input buf
     char input_buf[50];
@@ -56,9 +58,10 @@ int main() {
 
     int indexOfPath = 0;
 
+
+
     //linked list of all commands
     HistoryNodeType* historyList = malloc(sizeof(HistoryNodeType));
-    size_t size;
 
     //keeps track if recalled was called in the prev command
     bool recall = false;
@@ -69,7 +72,8 @@ int main() {
 
     //Print Air Force Shell and Current Working Directory
     printf("%s\n\n", "...Air Force Shell (afsh)...");
-    printf("%s",getcwd(cwd, size));
+    currentWD = getcwd(cwd, PATH_MAX);
+    printf("%s",currentWD);
     printf("> ");
     fgets(input_buf, 49, stdin);
     input_buf[strlen(input_buf)-1] = '\0';
@@ -201,25 +205,25 @@ int main() {
 
                     if (strncmp(&cmd_ptr_array[1][0], "~", 1) == 0){
 
-                        //changes directory to the HOME
-                        status = chdir(getenv("HOME"));
 
-                        char delim[] = "/";
+                        char delim[] = "~";
 
-//
-//                    while(restOfPath != NULL){
-//                        printf("'%s'\n", ptr);
-//                        ptr = strtok(NULL, delim);
-//                    }
-//
-//                    indexOfPath = 0;
-//                    while (tempStr[indexOfPath] != NULL)
-//                    {
-//                        printf("%d ", tempStr[i]);
-//                    }
-//
-//
-//                    status = chdir(tempStr);
+                        //splits the string on the ~
+                        char* newStr = strdup(cmd_ptr_array[1]);
+
+                        char *cutStr = strtok(newStr, delim);
+
+                        //deals with just the squiggle
+                        if (cutStr == NULL){
+                            cutStr = "";
+                        }
+
+                        //adds path to HOME to the split string
+                        cutStr = strcat(getenv("HOME"),cutStr);
+
+                        //changes directory to that path
+                        chdir(cutStr);
+
                     }
 
                     else
@@ -254,7 +258,8 @@ int main() {
         performDefaultExec = true;
 
         if (recall == false || status == -1) {
-            printf(getcwd(cwd, size));
+            currentWD = strdup(getcwd(cwd, PATH_MAX));
+            printf("%s",currentWD);
             printf("> ");
             fgets(input_buf, 49, stdin);
             input_buf[strlen(input_buf)-1] = '\0';
