@@ -75,7 +75,7 @@ int main() {
 
     //Print Air Force Shell and Current Working Directory
     printf("%s\n\n", "...Air Force Shell (afsh)...");
-    currentWD = getcwd(cwd, PATH_MAX);
+    currentWD = strdup(getcwd(cwd, PATH_MAX));
     printf("%s",currentWD);
     printf("> ");
     fgets(input_buf, 49, stdin);
@@ -92,8 +92,6 @@ int main() {
 
     while (tmp_ptr != NULL) {
         cmd_ptr_array[i] = strdup(tmp_ptr);
-
-        printf("token - %s\n", tmp_ptr);
         tmp_ptr = strtok(NULL, " \t");
         i++;
 
@@ -216,10 +214,14 @@ int main() {
                         //character to split the string
                         char delim[] = "~";
 
-                        //splits the string on the ~
-                        char* newStr = strdup(cmd_ptr_array[1]);
 
-                        char *cutStr = strtok(newStr, delim);
+                        //splits the string on the ~
+
+                        char* newStr = NULL;
+                        newStr = strdup(cmd_ptr_array[1]);
+
+                        char *cutStr = NULL;
+                        cutStr = strtok(newStr, delim);
 
                         //deals with just the squiggle
                         if (cutStr == NULL){
@@ -227,7 +229,7 @@ int main() {
                         }
 
                         //adds path to HOME to the split string
-                        cutStr = strcat(getenv("HOME"),cutStr);
+                        cutStr = strcat(strdup(getenv("HOME")),cutStr);
 
                         //changes directory to that path
                         chdir(cutStr);
