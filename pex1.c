@@ -23,8 +23,13 @@
  |   Known Bugs:  IF THE PROGRAM DOES NOT FUNCTION CORRECTLY IN SOME
  |      SITUATIONS, DESCRIBE THE SITUATIONS AND PROBLEMS HERE.
  +-----------------------------------------------------------------------------
- |   Documentation Statement:  https://www.tutorialspoint.com/c_standard_library/c_function_strtol.htm
- |   was used to figure out to use strtol function.
+ |   Documentation Statement:  https://www.tutorialspoint.com/c_standard_library/
+ |  c_function_strtol.htm was used to figure out to use strtol function. C2C
+ |  Nicholas Baietto helped me figure out how to implement cd ~ by attaching the
+ |  home path to the end of the rest of the string. He also helped me figure out what
+ |  was wrong with my print cwd and told me to use the MAX_PATH as the size.
+ |  https://www.codingame.com/playgrounds/14213/how-to-play-with-strings-in-c/string-split
+ |  was used to figure out how to split the string.
  *===========================================================================*/
 
 int main() {
@@ -55,8 +60,6 @@ int main() {
 
     //for the strtol capability
     char* ptr;
-
-    int indexOfPath = 0;
 
 
 
@@ -200,12 +203,17 @@ int main() {
 
 
             }
+
+            //implements cd command
             else if (strcmp(cmd_ptr_array[0], "cd") == 0) {
+
+                //if there is a second argument
                 if (cmd_ptr_array[1] != NULL) {
 
+                    //if the first character of the second argument is a ~
                     if (strncmp(&cmd_ptr_array[1][0], "~", 1) == 0){
 
-
+                        //character to split the string
                         char delim[] = "~";
 
                         //splits the string on the ~
@@ -228,6 +236,7 @@ int main() {
 
                     else
                         {
+                        //changes directory to whatever was the first argument
                         status = chdir(cmd_ptr_array[1]);
                     }
                     performDefaultExec = false;
@@ -250,14 +259,21 @@ int main() {
             }
         }
 
+        //if the command was not successfully executed
         if (status == -1){
             printf("%s", "Command Not Valid\n");
         }
 
+        //reset the status
         status = 0;
+
+        //reset the performDefaultExec
         performDefaultExec = true;
 
+        //if you are not in the recall or the exec was not successful
         if (recall == false || status == -1) {
+
+            //repeat beginning prompt
             currentWD = strdup(getcwd(cwd, PATH_MAX));
             printf("%s",currentWD);
             printf("> ");
@@ -281,8 +297,10 @@ int main() {
 
         else{
 
+            //otherwise gets the command from the history list
             cmdToInput = strdup(listGet(historyList, cmdIndex));
 
+            //changes it to tokens in order to implement like usual
             tmp_ptr = strtok(cmdToInput, " \t");
             int i = 0;
 
