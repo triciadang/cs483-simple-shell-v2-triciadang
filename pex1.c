@@ -11,7 +11,7 @@
  |   Assignment:  PEX1
  |       Author:  Tricia Dang
  |      Section:  M3
- |        Class:  CS483
+ |        Class:  CS483- OS
  +-----------------------------------------------------------------------------
  |   Description:  Create a command prompt with functionalities of cd,
  |                  recall, history, exit, and all other functions
